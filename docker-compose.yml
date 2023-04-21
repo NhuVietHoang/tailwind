@@ -1,0 +1,42 @@
+version: '3.4'
+services: 
+  db:
+    image: mysql
+    ports: 
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: 'myvue_db'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_ROOT_PASSWORD: ""
+    volumes:
+      - ./docker/db:/var/lib/mysql
+  node:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    image: 'vue_training'
+    ports:
+      - '8080:8080'
+    command: sh Docker/docker-entrypoint.sh
+    volumes:
+      - ./:/var/www/html    
+  app:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile
+    image: 'laravel_db'
+    command: sh Docker/api-entrypoint.sh
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/var/www/html
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - '8001:80'
+    links:
+      - db
+    environment:
+      - PMA_ARBITRARY=1
+  
